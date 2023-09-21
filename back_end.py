@@ -1,10 +1,16 @@
-
+import db
+from db import Flowers, Month, Location,  DateToPlant, Color
 
 
 
 
 
 # Gėliu pridėjimas  Julius
+def add_flowers(flower_name, blooming_duration):
+    flower = Flowers(flower_name, blooming_duration)
+    db.session.add()
+    db.session.commit()
+    return flower
 
 
 # spalvu pridėjimas Ilija
