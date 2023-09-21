@@ -1,11 +1,25 @@
-from sqlalchemy.orm import Session
-from db import session, Flowers, Location, DateToPlant
+import db
+from db import Flowers, Month, Location,  DateToPlant, Color
+
+
+
+
+
 
 # Gėliu pridėjimas  Julius
+def add_flowers(flower_name, blooming_duration):
+    flower = Flowers(flower_name, blooming_duration)
+    db.session.add()
+    db.session.commit()
+    return flower
 
 
 # spalvu pridėjimas Ilija
 
+def add_color(color_name):
+    new_color = Color(color=color_name)
+    session.add(new_color)
+    session.commit()
 
 # mėnsiu suvedimas turėtu but suvesta
 
