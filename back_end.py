@@ -15,6 +15,10 @@ def add_flowers(flower_name, blooming_duration):
 
 # spalvu pridėjimas Ilija
 
+def add_color(color_name):
+    new_color = Color(color=color_name)
+    session.add(new_color)
+    session.commit()
 
 # mėnsiu suvedimas turėtu but suvesta
 
