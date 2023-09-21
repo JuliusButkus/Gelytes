@@ -24,6 +24,10 @@ def add_color(color_name):
 
 
 # zonu pridėjimas    Dainius
+def add_zone(zone_name):
+    new_zone = Location(zone=zone_name)
+    db.session.add(new_zone)
+    db.session.commit()
 
 
 # Gėliu priskyrimas zonoms    Ruslanas
