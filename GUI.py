@@ -12,7 +12,15 @@ from db import Flower, Color, FlowerPlanting, Location, Month, session
     
 
 def main():
+    flower_list = session.query(Flower).all()
+    color_list = session.query(Color).all()
+    zone_list = session.query(Location).all()
+    month_list = session.query(Month).all()
     layout = [
+        [sg.Combo(values=[], key="-FLOWER-", size=(20, 5), enable_events=True),
+         sg.Combo(values=[], key="-COLOR-", size=(20, 5), enable_events=True),
+         sg.Combo(values=[], key="-LOCATION-", size=(20, 5), enable_events=True),
+         sg.Combo(values=[], key="-MONTH-", size=(20, 5), enable_events=True)]
         [sg.Table(
             values=[],
             headings=["flower_name", "color", "bloom_duration" "zone", "month" ],
@@ -35,10 +43,24 @@ def main():
             add_window()
         elif event == "-JOIN-":
             join_window()
-        elif event == "-FILTER-":
-            filter_window()
-        elif event == "-DELETE-":
+        elif event == "-FLOWER-": # Julius
+            selected_flower = values["-FLOWER-"]
+            if selected_flower == "Flower":
+                main_window["-COMBO-"].update(values=flower_list)
+                if event == "-COMBO-": 
+                    # selected_item = values["-COMBO-"]
+                    flower = session.query(FlowerPlanting).filter(Flower.flower_name).all()
+                    # data = [Flower.flower_name, Color.color, Flower.bloom_duration, Location.zone, Month.month]
+                    # main_window["-TABLE-"].update(values=data)
+                    return flower
+        elif event == "-COLOR-": # Dainius
             pass
+        elif event == "-LOCATON-": # Mindaugas
+            pass
+        elif event == "-MONTH-":
+            pass # Ruslanas
+        elif event == "-DELETE-":
+            pass # Ilija   naujas langas istrinti zona ir kieki
 
     main_window.close()
     
@@ -152,8 +174,7 @@ def filter_window():
                 filter_window["-COMBO-"].update(values=flower_list)
                 if event == "-COMBO-": 
                     selected_item = values["-COMBO-"]
-                    flower = session.query(FlowerPlanting).filter_by(flower=selected_item).all()
-                    print(flower)
+                    flower = session.query(FlowerPlanting).filter(Flower.flower_name).all()
                     filter_window["-FILTER-"].update(text=str(flower))
                     return flower
             if selected_class == "Color":
