@@ -12,18 +12,18 @@ from db import Flower, Color, FlowerPlanting, Location, Month, session
     
 
 def main():
-    flower_list = session.query(Flower).all()
-    color_list = session.query(Color).all()
-    zone_list = session.query(Location).all()
-    month_list = session.query(Month).all()
+    flower_list = [flower.flower_name for flower in session.query(Flower).all()]
+    color_list = [color.color for color in session.query(Color).all()]
+    zone_list = [location.zone for location in session.query(Location).all()]
+    month_list = [month.month for month in session.query(Month).all()]
     layout = [
-        [sg.Combo(values=[], key="-FLOWER-", size=(20, 5), enable_events=True),
-         sg.Combo(values=[], key="-COLOR-", size=(20, 5), enable_events=True),
-         sg.Combo(values=[], key="-LOCATION-", size=(20, 5), enable_events=True),
-         sg.Combo(values=[], key="-MONTH-", size=(20, 5), enable_events=True)]
+        [sg.Combo(values=flower_list, key="-FLOWER-", size=(20, 5), enable_events=True),
+         sg.Combo(values=color_list, key="-COLOR-", size=(20, 5), enable_events=True),
+         sg.Combo(values=zone_list, key="-LOCATION-", size=(20, 5), enable_events=True),
+         sg.Combo(values=month_list, key="-MONTH-", size=(20, 5), enable_events=True)],
         [sg.Table(
             values=[],
-            headings=["flower_name", "color", "bloom_duration" "zone", "month" ],
+            headings=["flower_name", "color", "bloom_duration", "zone", "month", "QTY" ],
             key="-TABLE-",
             justification='center',
             enable_events=True)
@@ -45,20 +45,32 @@ def main():
             join_window()
         elif event == "-FLOWER-": # Julius
             selected_flower = values["-FLOWER-"]
-            if selected_flower == "Flower":
-                main_window["-COMBO-"].update(values=flower_list)
-                if event == "-COMBO-": 
-                    # selected_item = values["-COMBO-"]
-                    flower = session.query(FlowerPlanting).filter(Flower.flower_name).all()
-                    # data = [Flower.flower_name, Color.color, Flower.bloom_duration, Location.zone, Month.month]
-                    # main_window["-TABLE-"].update(values=data)
-                    return flower
+            filtered_flowers = (
+                session.query(FlowerPlanting)
+                .filter(FlowerPlanting.flower.has(flower_name=selected_flower))
+                .all())
+            update_table(main_window, filtered_flowers)
         elif event == "-COLOR-": # Dainius
-            pass
-        elif event == "-LOCATON-": # Mindaugas
-            pass
+            selected_color = values["-COLOR-"]
+            filtered_flowers = (
+                session.query(FlowerPlanting)
+                .filter(FlowerPlanting.color.has(color=selected_color))
+                .all())
+            update_table(main_window, filtered_flowers)
+        elif event == "-LOCATION-": # Mindaugas
+            selected_location = values["-LOCATION-"]
+            filtered_flowers = (
+                session.query(FlowerPlanting)
+                .filter(FlowerPlanting.location.has(zone=selected_location))
+                .all())
+            update_table(main_window, filtered_flowers)
         elif event == "-MONTH-":
-            pass # Ruslanas
+            selected_month = values["-MONTH-"]
+            filtered_flowers = (
+                session.query(FlowerPlanting)
+                .filter(FlowerPlanting.month.has(month=selected_month))
+                .all())
+            update_table(main_window, filtered_flowers)
         elif event == "-DELETE-":
             pass # Ilija   naujas langas istrinti zona ir kieki
 
@@ -152,44 +164,18 @@ def join_window():
 
     join_window.close() 
 
-def filter_window():
-    flower_list = session.query(Flower).all()
-    color_list = session.query(Color).all()
-    zone_list = session.query(Location).all()
-    month_list = session.query(Month).all()
-    filter_layout = [
-        [sg.Combo(values=["Flower", "Color", "Location", "Month"], key="-CLASS-", size=(20, 5), enable_events=True)],
-        [sg.Combo(values=[], key="-COMBO-", size=(20, 5), enable_events=True)],
-        [sg.Text(text="",key="-FILTER-", size=(30, 5))],
-        [sg.Button("Exit", key="-EXIT-") ]
-        ]
 
-    filter_window = sg.Window("Add meniu", filter_layout, finalize=True)
+def update_table(window, filtered_flowers):
+    data = [
+        [flower_planting.flower.flower_name,
+         flower_planting.color.color,
+         flower_planting.flower.bloom_duration,
+         flower_planting.location.zone,
+         flower_planting.month.month,
+         flower_planting.qty]
+        for flower_planting in filtered_flowers]
 
-    while True:
-        event, values = filter_window.read()
-        if event == "-CLASS-":
-            selected_class = values["-CLASS-"]
-            if selected_class == "Flower":
-                filter_window["-COMBO-"].update(values=flower_list)
-                if event == "-COMBO-": 
-                    selected_item = values["-COMBO-"]
-                    flower = session.query(FlowerPlanting).filter(Flower.flower_name).all()
-                    filter_window["-FILTER-"].update(text=str(flower))
-                    return flower
-            if selected_class == "Color":
-                filter_window["-COMBO-"].update(values=color_list)
-            if selected_class == "Location":
-                filter_window["-COMBO-"].update(values=zone_list)
-            if selected_class == "Month":
-                filter_window["-COMBO-"].update(values=month_list) 
-        if event == "-EXIT-" or event == sg.WINDOW_CLOSED:
-            sg.popup()
-            break
-
-    filter_window.close()   
-
- 
+    window["-TABLE-"].update(values=data)
 
 if __name__ == "__main__":
     main()
