@@ -13,14 +13,10 @@ def delete_item(class_name, **kwargs):
     session.delete(item)
     session.commit()
 
-def flowers_info(flower: str, color: str, location: str, qty: int, month: str):
+def flowers_info(flower, color, location, qty, month):
     try:
-        flower = session.query(Flower).filter_by(flower_name=flower).first()
-        location = session.query(Location).filter_by(zone=location).first()
-        color = session.query(Color).filter_by(color=color).first()
-        month = session.query(Month).filter_by(month=month).first()
         if flower and location and color and month:
-            flower_planting = FlowerPlanting(flower_id=flower.id, location_id=location.id, color_id=color.id, month_id=month.id, qty=qty)
+            flower_planting = FlowerPlanting(flower=flower, location=location, color=color, month=month, qty=qty)
             session.add(flower_planting)
             session.commit()
             print(f"Assigned {flower} to {location}, bloom color {color}, month to plant {month}.")
@@ -34,8 +30,12 @@ def flowers_info(flower: str, color: str, location: str, qty: int, month: str):
         return False
 
 
+
+# items_in_class(Flower)
 # add_item(Flower, flower_name="Tulip", bloom_duration=38)
 # add_item(Color, color="pink")
 # add_item(Month, month="January")
 # add_item(Location, zone="yard")
 # flowers_info("Tulip", "pink", "yard", 50, "January")
+# flower = session.query(FlowerPlanting).filter_by().all()
+# print(flower)

@@ -15,7 +15,7 @@ class Flower(Base):
     flower_planting = relationship("FlowerPlanting", back_populates="flower")
    
     def __repr__(self):
-        return f'{self.flower_name}{self.bloom_duration}'
+        return f'{self.flower_name}'
 
 
 class Month(Base):
