@@ -72,7 +72,9 @@ def main():
                 .all())
             update_table(main_window, filtered_flowers)
         elif event == "-DELETE-":
-            pass # Ilija   naujas langas istrinti zona ir kieki
+            delete_window()
+        elif event == "-UPDATE-":
+            pass
 
     main_window.close()
     
@@ -176,6 +178,32 @@ def update_table(window, filtered_flowers):
         for flower_planting in filtered_flowers]
 
     window["-TABLE-"].update(values=data)
+
+def delete_window():
+    zone_list = [location.zone for location in session.query(Location).all()]
+    delete_layout = [
+        [sg.Combo(values=zone_list, key="-ZONE-", size=(20, 5),)],
+        [sg.Button("Confirm", key="-CONFIRM-"), sg.Button("Cancel", key="-CANCEL-")]
+        ]
+    
+    delete_window = sg.Window("Delete window", delete_layout)
+
+    while True:
+        event, values = delete_window.read()
+        selected_zone = values["-ZONE-"]
+        if event == "-CONFIRM-":
+            try:
+                session.query(FlowerPlanting)\
+                .filter(FlowerPlanting.location.has(Location.zone == selected_zone))\
+                .update({"location_id": None, "qty": None}, synchronize_session=False)
+                session.commit()
+                print(f"Deleted zone and qty for {selected_zone}")
+            except Exception as error:
+                session.rollback()
+                sg.popup(f"Error deleting zone and qty for {selected_zone}: {str(error)}")
+        if event == "-CANCEL-" or event == sg.WINDOW_CLOSED:
+            sg.popup()
+            break
 
 if __name__ == "__main__":
     main()
