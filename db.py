@@ -61,7 +61,7 @@ class FlowerPlanting(Base):
     location = relationship("Location", back_populates="flower_planting") 
     month = relationship("Month", back_populates="flower_planting")
     def __repr__(self):
-        return f'{self.qty}'
+        return f'{self.flower} {self.qty}'
  
    
 Base.metadata.create_all(engine)

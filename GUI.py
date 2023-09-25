@@ -26,38 +26,42 @@ def main():
             headings=["flower_name", "color", "bloom_duration", "zone", "month", "QTY" ],
             key="-TABLE-",
             justification='center',
-            enable_events=True)
+            enable_events=True,
+            auto_size_columns=False,
+            col_widths=[15, 15, 10, 16, 10, 5],
+            background_color="#9BCD9B"),
             ],
-        [sg.Button("Add", key="-ADD-"), sg.Button("Join", key="-JOIN-"), sg.Button("Filter", key="-FILTER-"), sg.Button("Delete", key="-DELETE-")],
-        [sg.Text("logeris", key="-LOGERIS-"), sg.Button("exit", key="-EXIT-")],
+        [sg.Button("Add", key="-ADD-", size=(18, 1), button_color="#8B3E2F"), sg.Button("Join", key="-JOIN-",  size=(18, 1), button_color="#8B3E2F"),
+        sg.Button("Update", key="-UPDATE-",  size=(18, 1), button_color="#8B3E2F"), sg.Button("Delete", key="-DELETE-",  size=(18, 1), button_color="#8B3E2F")],
+        [sg.Button("exit", key="-EXIT-", size=(18, 1), button_color="#8B3E2F")],
     ]
 
-    main_window = sg.Window("Flowers", layout, finalize=True)
+    main_window = sg.Window("Flowers", layout, finalize=True, background_color="#8FBC8F")
 
     while True:
         event, values = main_window.read()
         if event == "-EXIT-" or event == sg.WINDOW_CLOSED:
-            sg.popup()
+            sg.popup("Bye Bye", background_color="#8FBC8F")
             break
         elif event == "-ADD-":
             add_window()
         elif event == "-JOIN-":
             join_window()
-        elif event == "-FLOWER-": # Julius
+        elif event == "-FLOWER-": 
             selected_flower = values["-FLOWER-"]
             filtered_flowers = (
                 session.query(FlowerPlanting)
                 .filter(FlowerPlanting.flower.has(flower_name=selected_flower))
                 .all())
             update_table(main_window, filtered_flowers)
-        elif event == "-COLOR-": # Dainius
+        elif event == "-COLOR-": 
             selected_color = values["-COLOR-"]
             filtered_flowers = (
                 session.query(FlowerPlanting)
                 .filter(FlowerPlanting.color.has(color=selected_color))
                 .all())
             update_table(main_window, filtered_flowers)
-        elif event == "-LOCATION-": # Mindaugas
+        elif event == "-LOCATION-": 
             selected_location = values["-LOCATION-"]
             filtered_flowers = (
                 session.query(FlowerPlanting)
@@ -74,21 +78,21 @@ def main():
         elif event == "-DELETE-":
             delete_window()
         elif event == "-UPDATE-":
-            pass
+            update_window()
 
     main_window.close()
     
 def add_window():
     add_layout = [
         [sg.Listbox(values=["Flower", "Color", "Location"], size=(20, 5), enable_events=True, key="-CLASS-"), ],
-        [sg.Text("Add flower name and bloom duration in days"), sg.Input(key="-FLOWER_NAME-", disabled=True, disabled_readonly_background_color="gray25")],
-        [sg.Input(key="-DURATION-", disabled=True, disabled_readonly_background_color="gray25")],
-        [sg.Text("Add flower color"), sg.Input(key="-COLOR-", disabled=True, disabled_readonly_background_color="gray25")],
-        [sg.Text("Add location "), sg.Input(key="-ZONE-", disabled=True, disabled_readonly_background_color="gray25")],
-        [sg.Button("Confirm", key="-CONFIRM-"), sg.Button("Cancel", key="-CANCEL-")]
+        [sg.Text("flower name", size=(22), background_color="#043927"), sg.Input(key="-FLOWER_NAME-", disabled=True, disabled_readonly_background_color="gray25")],
+        [sg.Text("bloom duration in days", size=(22), background_color="#043927"), sg.Input(key="-DURATION-", disabled=True, disabled_readonly_background_color="gray25")],
+        [sg.Text("flower color", size=(22), background_color="#043927"), sg.Input(key="-COLOR-", disabled=True, disabled_readonly_background_color="gray25")],
+        [sg.Text("location ", size=(22), background_color="#043927"), sg.Input(key="-ZONE-", disabled=True, disabled_readonly_background_color="gray25")],
+        [sg.Button("Confirm", key="-CONFIRM-", button_color="#8B3E2F"), sg.Button("Cancel", key="-CANCEL-", button_color="#8B3E2F")]
     ]
 
-    add_window = sg.Window("Add meniu", add_layout, finalize=True)
+    add_window = sg.Window("Add meniu", add_layout, finalize=True, background_color="#8FBC8F")
 
     while True:
         event, values = add_window.read()
@@ -112,7 +116,6 @@ def add_window():
                 add_window["-COLOR-"].update(disabled=True)
 
         if event == "-CANCEL-" or event == sg.WINDOW_CLOSED:
-            sg.popup()
             break
         elif event == "-CONFIRM-":
             if selected_class == "Flower":
@@ -120,14 +123,18 @@ def add_window():
                     flower_name = values["-FLOWER_NAME-"]
                     bloom_duration = int(values["-DURATION-"])
                     back_end.add_item(Flower, flower_name=flower_name, bloom_duration=bloom_duration)
+                    add_window["-FLOWER_NAME-"].update("")
+                    add_window["-DURATION-"].update("")
                 except ValueError:
-                    sg.popup("nurodyta bloga reiksme")
+                    sg.popup("bloom duration must be a number of days")
             elif selected_class == "Color":
                 color = values["-COLOR-"]
                 back_end.add_item(Color, color=color)
+                add_window["-COLOR-"].update("")
             elif selected_class == "Location":
                 zone = values["-ZONE-"]
-                back_end.add_item(Location, zone=zone)      
+                back_end.add_item(Location, zone=zone)
+                add_window["-ZONE-"].update("")      
 
     add_window.close()    
 
@@ -141,17 +148,16 @@ def join_window():
         [sg.Combo(values=color_list, key="-COLOR-", size=(20, 5),)],
         [sg.Combo(values=zone_list, key="-ZONE-", size=(20, 5),)],
         [sg.Combo(values=month_list, key="-MONTH-", size=(20, 5),)],
-        [sg.Text("Add QTY "), sg.Input(key="-QTY-")],
-        [sg.Button("Confirm", key="-CONFIRM-"), sg.Button("Cancel", key="-CANCEL-")]
+        [sg.Text("Add QTY ", background_color="#043927"), sg.Input(key="-QTY-", size=(5))],
+        [sg.Button("Confirm", key="-CONFIRM-", button_color="#8B3E2F"), sg.Button("Cancel", key="-CANCEL-", button_color="#8B3E2F")]
         ]
 
-    join_window = sg.Window("Add meniu", join_layout, finalize=True)
+    join_window = sg.Window("Add meniu", join_layout, finalize=True, background_color="#8FBC8F")
 
     while True:
         event, values = join_window.read()
 
         if event == "-CANCEL-" or event == sg.WINDOW_CLOSED:
-            sg.popup()
             break
         elif event == "-CONFIRM-":
             try:
@@ -183,13 +189,15 @@ def delete_window():
     zone_list = [location.zone for location in session.query(Location).all()]
     delete_layout = [
         [sg.Combo(values=zone_list, key="-ZONE-", size=(20, 5),)],
-        [sg.Button("Confirm", key="-CONFIRM-"), sg.Button("Cancel", key="-CANCEL-")]
+        [sg.Button("Confirm", key="-CONFIRM-", size=(8), button_color="#8B3E2F"), sg.Button("Cancel", key="-CANCEL-", size=(8), button_color="#8B3E2F")]
         ]
     
-    delete_window = sg.Window("Delete window", delete_layout)
+    delete_window = sg.Window("Delete window", delete_layout, background_color="#8FBC8F")
 
     while True:
         event, values = delete_window.read()
+        if event == "-CANCEL-" or event == sg.WINDOW_CLOSED:
+            break
         selected_zone = values["-ZONE-"]
         if event == "-CONFIRM-":
             try:
@@ -201,9 +209,50 @@ def delete_window():
             except Exception as error:
                 session.rollback()
                 sg.popup(f"Error deleting zone and qty for {selected_zone}: {str(error)}")
+
+    delete_window.close()
+
+def update_window():
+    zone_list = [location.zone for location in session.query(Location).all()]
+    flower_list = [flower.flower_name for flower in session.query(Flower).all()]
+    update_layout = [
+        [sg.Combo(values=zone_list, key="-ZONE-", size=(20, 5), enable_events=True)],
+        [sg.Combo(values=flower_list, key="-FLOWER-", size=(20, 5), enable_events=True)],
+        [sg.Text("Add QTY ", background_color="#043927"), sg.Input(key="-QTY-", size=(5))],
+        [sg.Button("Confirm", key="-CONFIRM-", button_color="#8B3E2F"), sg.Button("Cancel", key="-CANCEL-", button_color="#8B3E2F")],
+    ]
+
+    update_window = sg.Window("Update", update_layout, background_color="#8FBC8F")
+
+    while True:
+        event, values = update_window.read()
         if event == "-CANCEL-" or event == sg.WINDOW_CLOSED:
-            sg.popup()
             break
+        if event == "-ZONE-":
+            selected_zone = values["-ZONE-"]
+            filtered_flowers = (
+                session.query(FlowerPlanting)
+                .filter(FlowerPlanting.location.has(zone=selected_zone))
+                .all())
+            update_window["-FLOWER-"].update(filtered_flowers)
+            if event == "-FLOWER-":
+                selected_flower = values["-FLOWER-"]
+                old_qty = session.query(FlowerPlanting)\
+                .filter(FlowerPlanting.location.has(Location.zone == selected_zone and FlowerPlanting.flower == selected_flower)).get(qty=old_qty)
+                update_window["-QTY-"].update(old_qty)
+        if event =="-CONFIRM-":
+            try:
+                new_qty = values["-QTY-"]
+                session.query(FlowerPlanting)\
+                .filter(FlowerPlanting.location.has(Location.zone == selected_zone, FlowerPlanting.flower == selected_flower))\
+                .update({"qty": new_qty}, synchronize_session=False)
+                session.commit()
+                print(f"Updated qty for {selected_zone} and {selected_flower} to {new_qty}")
+            except Exception as e:
+                session.rollback()
+                print(f"Error updating qty for {selected_zone} and {selected_flower}: {str(e)}")
+
+    update_window.close()
 
 if __name__ == "__main__":
     main()
