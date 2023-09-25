@@ -129,7 +129,8 @@ def add_window():
                 zone = values["-ZONE-"]
                 back_end.add_item(Location, zone=zone)      
 
-    add_window.close()    
+    add_window.close()  
+
 
 def join_window():
     flower_list = session.query(Flower).all()
@@ -164,8 +165,44 @@ def join_window():
             except Exception as error:
                 sg.popup(f'Turi buti pasirinkti visi laukai ir 5vestas kiekis: Klaida {error} ')
 
-    join_window.close() 
+    join_window.close()
 
+def delete_window():
+    zones = session.query(Location.zone).distinct().all()
+    quantities = session.query(FlowerPlanting.qty).distinct().all()
+    
+    delete_layout = [
+        [sg.Text("Select records to delete:")],
+        [sg.Listbox(values=zones, size=(20, 5), key="-DELETE_ZONE-", enable_events=True)],
+        [sg.Listbox(values=quantities, size=(20, 5), key="-DELETE_QUANTITY-", enable_events=True)],
+        [sg.Button("Delete", key="-DELETE_CONFIRM-"), sg.Button("Cancel", key="-DELETE_CANCEL-")]
+    ]
+
+    delete_window = sg.Window("Delete Records", delete_layout, finalize=True)
+
+    while True:
+        event, values = delete_window.read()
+
+        if event == "-DELETE_CANCEL-" or event == sg.WINDOW_CLOSED:
+            sg.popup("Deletion canceled.")
+            break
+        elif event == "-DELETE_CONFIRM-":
+            selected_zone = values["-DELETE_ZONE-"]
+            selected_quantity = values["-DELETE_QUANTITY-"]
+            
+            if not selected_zone and not selected_quantity:
+                sg.popup("Please select at least one criteria for deletion.")
+            else:
+                if selected_zone and selected_quantity:
+                    back_end.delete_item(FlowerPlanting, qty=selected_quantity)
+                    back_end.delete_item(Location, zone=selected_zone)
+                elif selected_zone:
+                    back_end.delete_item(Location, zone=selected_zone)
+                elif selected_quantity:
+                    back_end.delete_item(FlowerPlanting, qty=selected_quantity)
+                sg.popup("Records deleted successfully.")
+                delete_window.close()
+                break
 
 def update_table(window, filtered_flowers):
     data = [
