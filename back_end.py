@@ -9,9 +9,19 @@ def add_item(class_name, **kwargs):
     return item
 
 def delete_item(class_name, **kwargs):
-    item = class_name(**kwargs)
-    session.delete(item)
-    session.commit()
+    try:
+        item = session.query(class_name).filter_by(**kwargs).first()
+        if item:
+            session.delete(item)
+            session.commit()
+            print(f"Deleted {item}")
+            return True
+        else:
+            print(f"Item with {kwargs} not found.")
+            return False
+    except Exception as e:
+        print(f"An error occurred: {str(e)}")
+        return False
 
 def flowers_info(flower, color, location, qty, month):
     try:
